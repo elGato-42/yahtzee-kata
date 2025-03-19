@@ -10,10 +10,11 @@
 # - test suite does not test all methods or edge cases
 # - upgrade to ruby 2.7, update readme
 # - inline documentation
+# - bug? - chance does not act as a fallback
 
 
 class YahtzeeScoring
-  def self.best_score(roll)
+  def self.best_score(roll, scoreChance = true)
     best_category = nil
     best_score = 0
 
@@ -23,7 +24,7 @@ class YahtzeeScoring
       best_category = score[:category]
     end
 
-    score = score_lower_section(roll)
+    score = score_lower_section(roll, scoreChance)
     if score[:score] > best_score
       best_score = score[:score]
       best_category = score[:category]
@@ -50,19 +51,20 @@ class YahtzeeScoring
     { 1 => :ones, 2 => :twos, 3 => :threes, 4 => :fours, 5 => :fives, 6 => :sixes }[num]
   end
 
-  def self.score_lower_section(roll)
+  def self.score_lower_section(roll, scoreChance = true)
     best_category = nil
     best_score = 0
 
     categories = [
+      score_four_of_a_kind(roll), #prioritize 4 of a kind because this is harder to roll
       score_three_of_a_kind(roll),
-      score_four_of_a_kind(roll),
       score_full_house(roll),
       score_small_straight(roll),
       score_large_straight(roll),
-      score_yahtzee(roll),
-      score_chance(roll)
+      score_yahtzee(roll)
     ]
+
+    categories << score_chance(roll) if scoreChance
 
     categories.each do |result|
       if result[:score] > best_score
