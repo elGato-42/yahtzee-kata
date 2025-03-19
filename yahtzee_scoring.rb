@@ -3,48 +3,51 @@
 # take the category with the highest score
 
 # refactor ideas:
+# - upgrade to ruby 2.7, update readme
+# - test suite does not test all methods or edge cases
+# - bug? - chance does not act as a fallback
+# - does not handle ties
+
+# - reorg classes check if boxes filled in (maintain) - whose responsibility to keep track of scorecard state
 # - CATEGORIES constant (readability)
 # - start with highest possible category and stop when it's possible (performance) - where would chance fall
-# - reorg classes check if boxes filled in (maintain)
-# - does not handle ties
-# - test suite does not test all methods or edge cases
-# - upgrade to ruby 2.7, update readme
 # - inline documentation
-# - bug? - chance does not act as a fallback
 
 
 class YahtzeeScoring
   def self.best_score(roll, scoreChance = true)
-    best_category = nil
+    best_categories = []
     best_score = 0
 
-    score = score_upper_section(roll)
-    if score[:score] > best_score
-      best_score = score[:score]
-      best_category = score[:category]
+    # either append category if a tie, or replace category if its score beats top score
+    [score_upper_section(roll), score_lower_section(roll, scoreChance)].each do |section_score|
+      if (section_score[:score] == best_score)
+        best_categories += section_score[:categories]
+        best_categories.uniq!
+      elsif section_score[:score] > best_score
+        best_score = section_score[:score]
+        best_categories = section_score[:categories]
+      end
     end
 
-    score = score_lower_section(roll, scoreChance)
-    if score[:score] > best_score
-      best_score = score[:score]
-      best_category = score[:category]
-    end
-
-    { category: best_category, score: best_score }
+    { categories: best_categories.sort, score: best_score }
   end
 
   def self.score_upper_section(roll)
-    best_category = nil
+    best_categories = []
     best_score = 0
 
     (1..6).each do |num|
       score = roll.count(num) * num
-      if score > best_score
+      if score == best_score
+        best_categories << num_to_category(num)
+      elsif score > best_score
         best_score = score
-        best_category = num_to_category(num)
+        best_categories = [num_to_category(num)]
       end
     end
-    { category: best_category, score: best_score }
+
+    { categories: best_categories, score: best_score }
   end
 
   def self.num_to_category(num)
@@ -52,11 +55,11 @@ class YahtzeeScoring
   end
 
   def self.score_lower_section(roll, scoreChance = true)
-    best_category = nil
+    best_categories = []
     best_score = 0
 
     categories = [
-      score_four_of_a_kind(roll), #prioritize 4 of a kind because this is harder to roll
+      score_four_of_a_kind(roll),
       score_three_of_a_kind(roll),
       score_full_house(roll),
       score_small_straight(roll),
@@ -67,13 +70,15 @@ class YahtzeeScoring
     categories << score_chance(roll) if scoreChance
 
     categories.each do |result|
-      if result[:score] > best_score
+      if result[:score] == best_score
+        best_categories << result[:category]
+      elsif result[:score] > best_score
         best_score = result[:score]
-        best_category = result[:category]
+        best_categories = [result[:category]]
       end
     end
 
-    { category: best_category, score: best_score }
+    { categories: best_categories, score: best_score }
   end
 
   def self.score_three_of_a_kind(roll)
