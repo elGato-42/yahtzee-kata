@@ -47,5 +47,9 @@ Yahtzee scoring is divided into **Upper Section** and **Lower Section** categori
 To run the tests, execute:
 
 ```sh
-ruby test_yahtzee_scoring.rb
+ruby yahtzee_scoring_test.rb
 ```
+
+## Ruby Version
+
+v2.7.0 or higher
