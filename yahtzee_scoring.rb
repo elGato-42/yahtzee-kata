@@ -19,15 +19,9 @@ class YahtzeeScoring
     best_categories = []
     best_score = 0
 
-    # either append category if a tie, or replace category if its score beats top score
-    [score_upper_section(roll), score_lower_section(roll, scoreChance)].each do |section_score|
-      if (section_score[:score] == best_score)
-        best_categories += section_score[:categories]
-        best_categories.uniq!
-      elsif section_score[:score] > best_score
-        best_score = section_score[:score]
-        best_categories = section_score[:categories]
-      end
+    all_sections = [score_upper_section(roll), score_lower_section(roll, scoreChance)]
+    all_sections.each do |section|
+      best_categories, best_score = find_best_score(best_categories, best_score, section[:score], section[:categories])
     end
 
     { categories: best_categories.sort, score: best_score }
@@ -39,12 +33,8 @@ class YahtzeeScoring
 
     (1..6).each do |num|
       score = roll.count(num) * num
-      if score == best_score
-        best_categories << num_to_category(num)
-      elsif score > best_score
-        best_score = score
-        best_categories = [num_to_category(num)]
-      end
+      current_categories = [num_to_category(num)]
+      best_categories, best_score = find_best_score(best_categories, best_score, score, current_categories)
     end
 
     { categories: best_categories, score: best_score }
@@ -66,16 +56,10 @@ class YahtzeeScoring
       score_large_straight(roll),
       score_yahtzee(roll)
     ]
-
     categories << score_chance(roll) if scoreChance
 
     categories.each do |result|
-      if result[:score] == best_score
-        best_categories << result[:category]
-      elsif result[:score] > best_score
-        best_score = result[:score]
-        best_categories = [result[:category]]
-      end
+      best_categories, best_score = find_best_score(best_categories, best_score, result[:score], [result[:category]])
     end
 
     { categories: best_categories, score: best_score }
@@ -121,5 +105,18 @@ class YahtzeeScoring
 
   def self.score_chance(roll)
     { category: :chance, score: roll.sum }
+  end
+
+  private_class_method
+
+  def self.find_best_score(best_categories, best_score, current_score, current_categories)
+    if current_score == best_score
+      best_categories.concat(current_categories)
+      best_categories.uniq!
+    elsif current_score > best_score
+      best_score = current_score
+      best_categories = current_categories
+    end
+    [best_categories, best_score]
   end
 end

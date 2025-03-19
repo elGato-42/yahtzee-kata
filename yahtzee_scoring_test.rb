@@ -54,4 +54,20 @@ class TestYahtzeeScoring < Minitest::Test
     assert_equal({ categories: [:fours], score: 8 }, YahtzeeScoring.best_score([4, 4, 5, 2, 1], false))
     assert_equal({ categories: [:threes], score: 6 }, YahtzeeScoring.best_score([3, 3, 1, 2, 1], false))
   end
+
+  def test_find_best_score
+    best_categories = [:three_of_a_kind]
+    best_score = 15
+    current_score = 20
+    current_categories = [:full_house]
+
+    # Testing scenario where current score is higher than best score
+    assert_equal([[:full_house], 20], YahtzeeScoring.find_best_score(best_categories.dup, best_score, current_score, current_categories))
+
+    # Testing scenario where current score is the same as best score (should concatenate and uniq categories)
+    assert_equal([[:three_of_a_kind, :full_house], 15], YahtzeeScoring.find_best_score(best_categories.dup, best_score, 15, current_categories))
+
+    # Testing scenario where current score is lower than best score (should leave best as is)
+    assert_equal([[:three_of_a_kind], 15], YahtzeeScoring.find_best_score(best_categories.dup, best_score, 10, [:two_pairs]))
+  end
 end
