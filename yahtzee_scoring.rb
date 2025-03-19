@@ -7,8 +7,12 @@
 # - test suite does not test all methods or edge cases
 # - bug? - chance does not act as a fallback
 # - does not handle ties
+# - (out of scope) reorg classes check if boxes filled in (maintain) - whose responsibility to keep track of scorecard state
+  # You can imagine another class Scorecard who is responsible for state -
+  #  @scores = {sixes: 12, four_of_a_kind: 27, three_of_a_kind: nil}
+  #  possible_categories = YahtzeeScoring.best_score([6, 6, 1, 1, 2]
+  #  select_category = possible_categories.find { |category| scorecard[category].nil? }
 
-# - reorg classes check if boxes filled in (maintain) - whose responsibility to keep track of scorecard state
 # - CATEGORIES constant (readability)
 # - start with highest possible category and stop when it's possible (performance) - where would chance fall
 # - inline documentation
