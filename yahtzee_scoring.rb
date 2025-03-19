@@ -1,3 +1,17 @@
+# check if any boxes already filled in
+# compute score for each category
+# take the category with the highest score
+
+# refactor ideas:
+# - CATEGORIES constant (readability)
+# - start with highest possible category and stop when it's possible (performance) - where would chance fall
+# - reorg classes check if boxes filled in (maintain)
+# - does not handle ties
+# - test suite does not test all methods or edge cases
+# - upgrade to ruby 2.7, update readme
+# - inline documentation
+
+
 class YahtzeeScoring
   def self.best_score(roll)
     best_category = nil
