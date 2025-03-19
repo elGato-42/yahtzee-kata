@@ -13,7 +13,6 @@
   #  possible_categories = YahtzeeScoring.best_score([6, 6, 1, 1, 2]
   #  select_category = possible_categories.find { |category| scorecard[category].nil? }
 # - CATEGORIES constant (readability)
-
 # - start with highest possible category and stop when it's possible (performance) - where would chance fall
 # - inline documentation
 
@@ -27,6 +26,10 @@ class YahtzeeScoring
   SMALL_STRAIGHTS = [[1, 2, 3, 4], [2, 3, 4, 5], [3, 4, 5, 6]]
   LARGE_STRAIGHTS = [[1, 2, 3, 4, 5], [2, 3, 4, 5, 6]]
 
+  # Calculates the best possible score for a given dice roll considering all scoring categories.
+  # @param roll [Array<Integer>] The array of integers representing the dice roll.
+  # @param scoreChance [Boolean] Flag to include Chance category in score calculation.
+  # @return [Hash] The categories with the best score.
   def self.best_score(roll, scoreChance = true)
     best_categories = []
     best_score = 0
@@ -120,6 +123,12 @@ class YahtzeeScoring
 
   private_class_method
 
+  # Compares current score to the best score and updates if higher.
+  # @param best_categories [Array<Symbol>] The current best scoring categories.
+  # @param best_score [Integer] The current highest score.
+  # @param current_score [Integer] The score to compare against the best score.
+  # @param current_categories [Array<Symbol>] The categories corresponding to the current score.
+  # @return [Array] The updated best categories and best score.
   def self.find_best_score(best_categories, best_score, current_score, current_categories)
     if current_score == best_score
       best_categories.concat(current_categories)
